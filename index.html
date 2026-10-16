@@ -1,0 +1,462 @@
+* !DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎀 Tatlış Sihirli Kuaför Salonu 🎀</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@500;700&display=swap');
+        
+        body {
+            font-family: 'Quicksand', cursive, sans-serif;
+            background: linear-gradient(135deg, #ffe6f0 0%, #e6f9ff 100%);
+            background-image: radial-gradient(#ffb3d1 15%, transparent 15%), radial-gradient(#b3e0ff 15%, transparent 15%);
+            background-size: 40px 40px;
+            background-position: 0 0, 20px 20px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #fff0f5;
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #ffb3c6;
+            border-radius: 10px;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0) scale(0.8); opacity: 1; }
+            100% { transform: translateY(-70px) scale(1.3); opacity: 0; }
+        }
+        .floating-emoji {
+            position: absolute;
+            pointer-events: none;
+            animation: floatUp 0.7s ease-out forwards;
+            font-size: 2rem;
+            z-index: 50;
+        }
+
+        @keyframes chibiDance {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            25% { transform: scale(1.06) rotate(-3deg); }
+            75% { transform: scale(1.06) rotate(3deg); }
+        }
+        .animate-dance {
+            animation: chibiDance 0.4s ease-in-out 2;
+        }
+
+        .tool-item {
+            cursor: grab;
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .tool-item:active {
+            cursor: grabbing;
+            transform: scale(1.15) rotate(5deg);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+
+    <!-- Ana Oyun Kutusu (Şık Masaüstü Penceresi) -->
+    <div class="bg-white/95 backdrop-blur-md rounded-[35px] shadow-2xl border-8 border-[#ffb3c6] w-full max-w-5xl overflow-hidden flex flex-col md:flex-row shadow-[0_20px_50px_rgba(255,133,162,0.3)]">
+        
+        <!-- SOL TARAF: Karakter & Etkileşim Alanı -->
+        <div class="w-full md:w-[45%] bg-gradient-to-b from-white to-[#fff0f5] p-6 flex flex-col items-center justify-between relative border-b md:border-b-0 md:border-r-4 border-[#ffe3ec]">
+            
+            <!-- Üst Bilgi / Durum Balonu -->
+            <div id="statusBubble" class="bg-[#ffe5ed] border-2 border-[#ffb3c6] text-[#d84a75] px-4 py-2 rounded-2xl text-sm font-bold shadow-sm transition-all duration-300 text-center mb-2 animate-bounce">
+                ✨ Hoş geldin! Aletleri saçına sürükleyip bırakabilirsin! ✂️
+            </div>
+
+            <!-- Chibi Karakter SVG Alanı (Drop Target) -->
+            <div id="dropZone" class="relative w-72 h-80 flex items-center justify-center my-2 rounded-3xl transition-colors duration-200">
+                <svg id="characterSvg" class="w-full h-full drop-shadow-md transition-transform duration-300" viewBox="0 0 400 500">
+                    <!-- ARKA SAÇ -->
+                    <path id="backHair" d="M 120 180 Q 200 120 280 180 L 290 310 Q 200 350 110 310 Z" fill="#ff9ebb"/>
+                    
+                    <!-- BOYUN & KULAKLAR -->
+                    <rect id="neck" x="180" y="270" width="40" height="50" fill="#fff0e1" rx="8"/>
+                    <circle id="earL" cx="135" cy="220" r="18" fill="#fff0e1"/>
+                    <circle id="earR" cx="265" cy="220" r="18" fill="#fff0e1"/>
+                    <circle cx="135" cy="220" r="10" fill="#ffdfd0"/>
+                    <circle cx="265" cy="220" r="10" fill="#ffdfd0"/>
+
+                    <!-- KAFA -->
+                    <circle id="head" cx="200" cy="210" r="70" fill="#fff0e1"/>
+                    
+                    <!-- GÖZLER -->
+                    <circle cx="170" cy="210" r="12" fill="#42303a"/>
+                    <circle cx="166" cy="205" r="4.5" fill="#fff"/>
+                    <circle cx="173" cy="214" r="2" fill="#fff"/>
+                    
+                    <circle cx="230" cy="210" r="12" fill="#42303a"/>
+                    <circle cx="226" cy="205" r="4.5" fill="#fff"/>
+                    <circle cx="233" cy="214" r="2" fill="#fff"/>
+                    
+                    <!-- YANAKLAR -->
+                    <ellipse id="blushL" cx="155" cy="228" rx="14" ry="8" fill="#ff94b2" opacity="0.6"/>
+                    <ellipse id="blushR" cx="245" cy="228" rx="14" ry="8" fill="#ff94b2" opacity="0.6"/>
+                    
+                    <!-- AĞIZ -->
+                    <path id="mouth" d="M 193 235 Q 200 242 207 235" stroke="#e9527b" stroke-width="4" stroke-linecap="round" fill="none"/>
+                    
+                    <!-- ÖN SAÇ -->
+                    <path id="frontHair" d="M 130 180 Q 200 140 270 180 Q 250 210 200 190 Q 150 210 130 180 Z" fill="#ff9ebb"/>
+                    
+                    <!-- KIYAFET -->
+                    <path id="clothes" d="M 150 320 L 250 320 L 275 450 L 125 450 Z" fill="#ff85a2"/>
+                    <path d="M 180 320 Q 200 340 220 320" fill="none" stroke="#fff" stroke-width="4"/>
+
+                    <!-- AKSESUAR -->
+                    <g id="accessoryZone" transform="translate(0,0)"></g>
+                </svg>
+            </div>
+
+            <!-- Alt Araç Çubuğu (Sürükle Bırak Yapılabilen Ekipmanlar) -->
+            <div class="w-full bg-[#fff5f8] p-3 rounded-2xl border-2 border-dashed border-[#ffb3c6] flex flex-col items-center">
+                <span class="text-xs font-bold text-[#d84a75] mb-2">✨ Kuaför Aletleri (Sürükle ve Bırak) ✨</span>
+                <div class="flex gap-4 justify-center items-center">
+                    <!-- Makas -->
+                    <div draggable="true" ondragstart="drag(event, 'scissors')" class="tool-item bg-white w-12 h-12 rounded-2xl shadow-md border-2 border-[#ffd0dd] flex items-center justify-center text-2xl hover:scale-110">
+                        ✂️
+                    </div>
+                    <!-- Fön Makinesi -->
+                    <div draggable="true" ondragstart="drag(event, 'dryer')" class="tool-item bg-white w-12 h-12 rounded-2xl shadow-md border-2 border-[#ffd0dd] flex items-center justify-center text-2xl hover:scale-110">
+                        💨
+                    </div>
+                    <!-- Şampuan -->
+                    <div draggable="true" ondragstart="drag(event, 'shampoo')" class="tool-item bg-white w-12 h-12 rounded-2xl shadow-md border-2 border-[#ffd0dd] flex items-center justify-center text-2xl hover:scale-110">
+                        🧴
+                    </div>
+                    <!-- Sihirli Değnek -->
+                    <div draggable="true" ondragstart="drag(event, 'wand')" class="tool-item bg-white w-12 h-12 rounded-2xl shadow-md border-2 border-[#ffd0dd] flex items-center justify-center text-2xl hover:scale-110">
+                        🪄
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- SAĞ TARAF: Kontrol Paneli & Özelleştirme -->
+        <div class="w-full md:w-[55%] bg-[#fffdfa] p-6 flex flex-col justify-between custom-scrollbar overflow-y-auto max-h-[600px]">
+            
+            <div class="space-y-5">
+                <!-- Başlık -->
+                <div class="flex items-center justify-between border-b-2 border-[#ffe3ec] pb-3">
+                    <h1 class="text-2xl font-bold text-[#ff5c8a] tracking-wide">🎀 Tatlış Kuaför 🎀</h1>
+                    <button onclick="playMagicSound('sparkle')" class="bg-[#ffe5ed] hover:bg-[#ffb3c6] text-[#d84a75] px-3 py-1.5 rounded-xl font-bold text-xs border border-[#ffb3c6] transition">🎵 Ses Test</button>
+                </div>
+
+                <!-- 1. Karakter Seçimi -->
+                <div>
+                    <span class="inline-block text-xs font-bold text-[#d84a75] bg-[#ffe5ed] px-3 py-1 rounded-xl mb-2 shadow-sm">✨ Tatlış Arkadaşını Seç</span>
+                    <div class="flex gap-3">
+                        <button id="btnGirl" onclick="setGender('girl')" class="flex-1 py-2 px-4 rounded-2xl border-3 border-[#ffd0dd] bg-gradient-to-r from-[#ff85a2] to-[#ffb3c6] text-white font-bold shadow-md transition transform hover:-translate-y-0.5">👧 Chibi Kız</button>
+                        <button id="btnBoy" onclick="setGender('boy')" class="flex-1 py-2 px-4 rounded-2xl border-3 border-[#ffd0dd] bg-white text-[#6d4c60] font-bold shadow-md transition transform hover:-translate-y-0.5">👦 Chibi Erkek</button>
+                    </div>
+                </div>
+
+                <!-- 2. Ten Rengi -->
+                <div>
+                    <span class="inline-block text-xs font-bold text-[#d84a75] bg-[#ffe5ed] px-3 py-1 rounded-xl mb-2 shadow-sm">🎨 Bebek Ten Rengi</span>
+                    <div class="flex gap-3">
+                        <div onclick="setSkinColor('#fff0e1')" class="w-9 h-9 rounded-full bg-[#fff0e1] border-4 border-white shadow-md cursor-pointer hover:scale-110 transition"></div>
+                        <div onclick="setSkinColor('#f7d5b7')" class="w-9 h-9 rounded-full bg-[#f7d5b7] border-4 border-white shadow-md cursor-pointer hover:scale-110 transition"></div>
+                        <div onclick="setSkinColor('#e2b38a')" class="w-9 h-9 rounded-full bg-[#e2b38a] border-4 border-white shadow-md cursor-pointer hover:scale-110 transition"></div>
+                        <div onclick="setSkinColor('#8e5836')" class="w-9 h-9 rounded-full bg-[#8e5836] border-4 border-white shadow-md cursor-pointer hover:scale-110 transition"></div>
+                    </div>
+                </div>
+
+                <!-- 3. Saç Boyu Kaydırıcısı -->
+                <div>
+                    <span class="inline-block text-xs font-bold text-[#d84a75] bg-[#ffe5ed] px-3 py-1 rounded-xl mb-2 shadow-sm">✂️ Sihirli Saç Boyu</span>
+                    <div class="bg-[#fff5f8] p-3 rounded-2xl border-2 border-dashed border-[#ffb3c6]">
+                        <input type="range" min="1" max="3" value="2" class="w-full accent-[#ff85a2] cursor-pointer" oninput="changeHairLength(this.value)">
+                    </div>
+                </div>
+
+                <!-- 4. Saç Boyası Paleti -->
+                <div>
+                    <span class="inline-block text-xs font-bold text-[#d84a75] bg-[#ffe5ed] px-3 py-1 rounded-xl mb-2 shadow-sm">🌈 Sihirli Saç Boyası</span>
+                    <div class="flex gap-3 flex-wrap">
+                        <div onclick="setHairColor('#ff9ebb')" class="w-9 h-9 rounded-full bg-[#ff9ebb] border-4 border-white shadow-md cursor-pointer hover:scale-110 transition"></div>
+                        <div onclick="setHairColor('#ffd166')" class="w-9 h-9 rounded-full bg-[#ffd166] border-4 border-white shadow-md cursor-pointer hover:scale-110 transition"></div>
+                        <div onclick="setHairColor('#06d6a0')" class="w-9 h-9 rounded-full bg-[#06d6a0] border-4 border-white shadow-md cursor-pointer hover:scale-110 transition"></div>
+                        <div onclick="setHairColor('#118ab2')" class="w-9 h-9 rounded-full bg-[#118ab2] border-4 border-white shadow-md cursor-pointer hover:scale-110 transition"></div>
+                        <div onclick="setHairColor('#9b5de5')" class="w-9 h-9 rounded-full bg-[#9b5de5] border-4 border-white shadow-md cursor-pointer hover:scale-110 transition"></div>
+                        <div onclick="setHairColor('#ff5964')" class="w-9 h-9 rounded-full bg-[#ff5964] border-4 border-white shadow-md cursor-pointer hover:scale-110 transition"></div>
+                    </div>
+                </div>
+
+                <!-- 5. Kıyafetler -->
+                <div>
+                    <span class="inline-block text-xs font-bold text-[#d84a75] bg-[#ffe5ed] px-3 py-1 rounded-xl mb-2 shadow-sm">👗 Tatlış Kıyafetler</span>
+                    <div class="flex gap-2 flex-wrap">
+                        <button onclick="setOutfit('#ff85a2')" class="bg-white border-2 border-[#ffd0dd] hover:bg-[#ffe5ed] px-3 py-1.5 rounded-xl text-sm font-bold text-[#6d4c60] shadow-sm transition">Pembe Aşkı</button>
+                        <button onclick="setOutfit('#4ea8de')" class="bg-white border-2 border-[#ffd0dd] hover:bg-[#ffe5ed] px-3 py-1.5 rounded-xl text-sm font-bold text-[#6d4c60] shadow-sm transition">Gökyüzü Mavi</button>
+                        <button onclick="setOutfit('#52b788')" class="bg-white border-2 border-[#ffd0dd] hover:bg-[#ffe5ed] px-3 py-1.5 rounded-xl text-sm font-bold text-[#6d4c60] shadow-sm transition">Nane Yeşili</button>
+                        <button onclick="setOutfit('#b5179e')" class="bg-white border-2 border-[#ffd0dd] hover:bg-[#ffe5ed] px-3 py-1.5 rounded-xl text-sm font-bold text-[#6d4c60] shadow-sm transition">Mor Büyü</button>
+                    </div>
+                </div>
+
+                <!-- 6. Aksesuarlar -->
+                <div>
+                    <span class="inline-block text-xs font-bold text-[#d84a75] bg-[#ffe5ed] px-3 py-1 rounded-xl mb-2 shadow-sm">👑 Sihirli Aksesuarlar</span>
+                    <div class="flex gap-2 flex-wrap">
+                        <button onclick="setAccessory('bow')" class="bg-white border-2 border-[#ffd0dd] hover:bg-[#ffe5ed] px-3 py-1.5 rounded-xl text-sm font-bold text-[#6d4c60] shadow-sm transition">🎀 Kurdele</button>
+                        <button onclick="setAccessory('crown')" class="bg-white border-2 border-[#ffd0dd] hover:bg-[#ffe5ed] px-3 py-1.5 rounded-xl text-sm font-bold text-[#6d4c60] shadow-sm transition">👑 Taç</button>
+                        <button onclick="setAccessory('flower')" class="bg-white border-2 border-[#ffd0dd] hover:bg-[#ffe5ed] px-3 py-1.5 rounded-xl text-sm font-bold text-[#6d4c60] shadow-sm transition">🌸 Çiçek</button>
+                        <button onclick="setAccessory('none')" class="bg-white border-2 border-[#ffd0dd] hover:bg-[#ffe5ed] px-3 py-1.5 rounded-xl text-sm font-bold text-[#6d4c60] shadow-sm transition">✨ Kaldır</button>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- JavaScript Mantığı ve Ses/Sürükle-Bırak Sistemi -->
+    <script>
+        let currentHairLength = 2; // 1: Kısa, 2: Orta, 3: Uzun
+        let currentHairColor = "#ff9ebb";
+        let currentGender = "girl";
+
+        // Web Audio API ile pofuduk ses efektleri (harici ses dosyası gerekmez)
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        function playMagicSound(type) {
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            const now = audioCtx.currentTime;
+
+            if (type === 'sparkle') {
+                // Sihirli parıltı efekti (tiz arpej)
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(587.33, now); // D5
+                osc.frequency.setValueAtTime(880, now + 0.08); // A5
+                osc.frequency.setValueAtTime(1174.66, now + 0.16); // D6
+                gain.gain.setValueAtTime(0.15, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+                osc.start(now);
+                osc.stop(now + 0.35);
+            } else if (type === 'snip') {
+                // Makas sesi (kısa gürültü/frekans)
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(300, now);
+                osc.frequency.exponentialRampToValueAtTime(150, now + 0.1);
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+                osc.start(now);
+                osc.stop(now + 0.12);
+            } else if (type === 'bubble') {
+                // Şampuan / Fön pofuduk sesi
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(220, now);
+                osc.frequency.exponentialRampToValueAtTime(440, now + 0.2);
+                gain.gain.setValueAtTime(0.15, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+                osc.start(now);
+                osc.stop(now + 0.25);
+            }
+        }
+
+        // Görsel efekt ve durum mesajı tetikleyici
+        function triggerEffect(msg, soundType) {
+            playMagicSound(soundType);
+
+            // Durum balonu metnini güncelle
+            const bubble = document.getElementById('statusBubble');
+            bubble.innerText = msg;
+
+            // Karakter animasyonu
+            const svg = document.getElementById('characterSvg');
+            svg.classList.add('animate-dance');
+            setTimeout(() => svg.classList.remove('animate-dance'), 800);
+
+            // Uçuşan emojiler üret
+            const zone = document.getElementById('dropZone');
+            const emojis = ['💖', '✨', '🌟', '🎀', '🌸', '💫', '🫧'];
+            for(let i=0; i<3; i++) {
+                const pop = document.createElement('div');
+                pop.className = 'floating-emoji';
+                pop.innerText = emojis[Math.floor(Math.random() * emojis.length)];
+                pop.style.left = (Math.random() * 200 + 30) + 'px';
+                pop.style.top = (Math.random() * 100 + 100) + 'px';
+                zone.appendChild(pop);
+                setTimeout(() => pop.remove(), 700);
+            }
+        }
+
+        // Sürükle Bırak İşlemleri
+        function drag(ev, toolName) {
+            ev.dataTransfer.setData("text/plain", toolName);
+        }
+
+        const dropZone = document.getElementById('dropZone');
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('bg-[#ffe5ed]/50');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('bg-[#ffe5ed]/50');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('bg-[#ffe5ed]/50');
+            const tool = e.dataTransfer.getData("text/plain");
+
+            if (tool === 'scissors') {
+                triggerEffect("✂️ Harika kesim! Saç şekli tazelendi!", 'snip');
+                currentHairLength = currentHairLength === 1 ? 3 : currentHairLength - 1;
+                document.querySelector('input[type="range"]').value = currentHairLength;
+                updateHairShape();
+            } else if (tool === 'dryer') {
+                triggerElement = true;
+                triggerEffect("💨 Pofuduk fön çekildi, saçlar mis gibi kabarıktı!", 'bubble');
+            } else if (tool === 'shampoo') {
+                triggerEffect("🧴 Saçlar köpürtüldü ve tertemiz parladı!", 'bubble');
+            } else if (tool === 'wand') {
+                triggerEffect("🪄 Sihirli dokunuşla renkler canlandı!", 'sparkle');
+            }
+        });
+
+        // Cinsiyet Değişimi
+        function setGender(gender) {
+            currentGender = gender;
+            const btnGirl = document.getElementById('btnGirl');
+            const btnBoy = document.getElementById('btnBoy');
+            
+            if (gender === 'girl') {
+                btnGirl.className = "flex-1 py-2 px-4 rounded-2xl border-3 border-[#ffd0dd] bg-gradient-to-r from-[#ff85a2] to-[#ffb3c6] text-white font-bold shadow-md transition transform hover:-translate-y-0.5";
+                btnBoy.className = "flex-1 py-2 px-4 rounded-2xl border-3 border-[#ffd0dd] bg-white text-[#6d4c60] font-bold shadow-md transition transform hover:-translate-y-0.5";
+                document.getElementById('clothes').setAttribute('d', 'M 150 320 L 250 320 L 275 450 L 125 450 Z');
+            } else {
+                btnBoy.className = "flex-1 py-2 px-4 rounded-2xl border-3 border-[#ffd0dd] bg-gradient-to-r from-[#ff85a2] to-[#ffb3c6] text-white font-bold shadow-md transition transform hover:-translate-y-0.5";
+                btnGirl.className = "flex-1 py-2 px-4 rounded-2xl border-3 border-[#ffd0dd] bg-white text-[#6d4c60] font-bold shadow-md transition transform hover:-translate-y-0.5";
+                document.getElementById('clothes').setAttribute('d', 'M 140 320 L 260 320 L 250 450 L 150 450 Z');
+            }
+            updateHairShape();
+            triggerEffect("✨ Yeni arkadaşın salona geldi!", 'sparkle');
+        }
+
+        // Ten Rengi
+        function setSkinColor(color) {
+            document.getElementById('head').setAttribute('fill', color);
+            document.getElementById('neck').setAttribute('fill', color);
+            document.getElementById('earL').setAttribute('fill', color);
+            document.getElementById('earR').setAttribute('fill', color);
+            triggerEffect("🎨 Ten rengi güncellendi!", 'sparkle');
+        }
+
+        // Saç Boyu Kaydırıcı
+        function changeHairLength(val) {
+            currentHairLength = parseInt(val);
+            updateHairShape();
+            triggerEffect("✂️ Saç boyu ayarlandı!", 'snip');
+        }
+
+        // Saç Şekli Üretici
+        function updateHairShape() {
+            let backPath = "";
+            let frontPath = "";
+
+            if (currentGender === 'girl') {
+                if (currentHairLength === 1) {
+                    backPath = "M 120 180 Q 200 120 280 180 L 275 250 Q 200 270 125 250 Z";
+                    frontPath = "M 130 180 Q 200 140 270 180 Q 250 210 200 195 Q 150 210 130 180 Z";
+                } else if (currentHairLength === 2) {
+                    backPath = "M 120 180 Q 200 120 280 180 L 290 320 Q 200 360 110 320 Z";
+                    frontPath = "M 130 180 Q 200 140 270 180 Q 250 210 200 195 Q 150 210 130 180 Z";
+                } else {
+                    backPath = "M 110 180 Q 200 110 290 180 L 310 420 Q 200 460 90 420 Z";
+                    frontPath = "M 130 180 Q 200 140 270 180 Q 250 210 200 195 Q 150 210 130 180 Z";
+                }
+            } else {
+                if (currentHairLength === 1) {
+                    backPath = "M 130 190 Q 200 130 270 190 L 265 220 Q 200 230 135 220 Z";
+                    frontPath = "M 135 185 Q 200 130 265 185 Q 240 160 200 170 Q 160 160 135 185 Z";
+                } else if (currentHairLength === 2) {
+                    backPath = "M 125 180 Q 200 120 275 180 L 280 260 Q 200 270 120 260 Z";
+                    frontPath = "M 130 180 Q 200 135 270 180 Q 245 165 200 175 Q 155 165 130 180 Z";
+                } else {
+                    backPath = "M 120 180 Q 200 110 280 180 L 295 350 Q 200 380 105 350 Z";
+                    frontPath = "M 130 180 Q 200 135 270 180 Q 245 165 200 175 Q 155 165 130 180 Z";
+                }
+            }
+
+            document.getElementById('backHair').setAttribute('d', backPath);
+            document.getElementById('frontHair').setAttribute('d', frontPath);
+        }
+
+        // Saç Rengi
+        function setHairColor(color) {
+            currentHairColor = color;
+            document.getElementById('backHair').setAttribute('fill', color);
+            document.getElementById('frontHair').setAttribute('fill', color);
+            triggerEffect("🌈 Saç rengi harika oldu!", 'sparkle');
+        }
+
+        // Kıyafet Rengi
+        function setOutfit(color) {
+            document.getElementById('clothes').setAttribute('fill', color);
+            triggerEffect("👗 Yeni kıyafet çok yakıştı!", 'sparkle');
+        }
+
+        // Aksesuarlar
+        function setAccessory(type) {
+            const zone = document.getElementById('accessoryZone');
+            zone.innerHTML = '';
+
+            if (type === 'bow') {
+                zone.innerHTML = `
+                    <g transform="translate(210, 115) rotate(15)">
+                        <path d="M 0 0 Q -25 -20 -15 -35 Q -5 -30 0 -10 Q 5 -30 15 -35 Q 25 -20 0 0 Z" fill="#ff5c8a"/>
+                        <circle cx="0" cy="-15" r="7" fill="#ffb3c6"/>
+                    </g>
+                `;
+                triggerEffect("🎀 Kurdele takıldı!", 'sparkle');
+            } else if (type === 'crown') {
+                zone.innerHTML = `
+                    <g transform="translate(180, 105)">
+                        <polygon points="0,25 10,0 20,20 30,0 40,25" fill="#ffd166" stroke="#fca311" stroke-width="2"/>
+                        <rect x="-2" y="25" width="44" height="6" rx="3" fill="#fca311"/>
+                    </g>
+                `;
+                triggerEffect("👑 Prenses tacı giyildi!", 'sparkle');
+            } else if (type === 'flower') {
+                zone.innerHTML = `
+                    <g transform="translate(230, 125)">
+                        <circle cx="0" cy="-10" r="7" fill="#ff85a2"/>
+                        <circle cx="10" cy="0" r="7" fill="#ff85a2"/>
+                        <circle cx="0" cy="10" r="7" fill="#ff85a2"/>
+                        <circle cx="-10" cy="0" r="7" fill="#ff85a2"/>
+                        <circle cx="0" cy="0" r="6" fill="#ffd166"/>
+                    </g>
+                `;
+                triggerEffect("🌸 Çiçek aksesuarı eklendi!", 'sparkle');
+            } else {
+                triggerEffect("✨ Aksesuarlar kaldırıldı!", 'sparkle');
+            }
+        }
+
+        // Başlangıç saç şeklini yükle
+        updateHairShape();
+    </script>
+</body>
+</html>
+
+
+
